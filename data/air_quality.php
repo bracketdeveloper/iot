@@ -14,64 +14,20 @@ foreach ($completeData as $data):
     $date = $date . "000";
 
     $dataPointCo2[] =
-        array("x" => $date, "y" => floatval($data['co2']),);
-endforeach;
-
-foreach ($completeData as $data):
-    $date = substr($data['received_at'], 0, 10);
-    $date = strtotime($date);
-    $date = $date . "000";
-
+        array("x" => $date, "y" => floatval($data['co2']));
     $dataPointHumidity[] =
-        array("x" => $date, "y" => floatval($data['humidity']),);
-endforeach;
-
-foreach ($completeData as $data):
-    $date = substr($data['received_at'], 0, 10);
-    $date = strtotime($date);
-    $date = $date . "000";
-
+        array("x" => $date, "y" => floatval($data['humidity']));
     $dataPointTemperature[] =
-        array("x" => $date, "y" => floatval($data['temperature']),);
-endforeach;
-
-foreach ($completeData as $data):
-    $date = substr($data['received_at'], 0, 10);
-    $date = strtotime($date);
-    $date = $date . "000";
-
+        array("x" => $date, "y" => floatval($data['temperature']));
     $dataPointPM10[] =
-        array("x" => $date, "y" => floatval($data['pm10']),);
+        array("x" => $date, "y" => floatval($data['pm10']));
+    $dataPointPM25[] =
+        array("x" => $date, "y" => floatval($data['pm25']));
+
 endforeach;
 
-foreach ($completeData as $data):
-    $date = substr($data['received_at'], 0, 10);
-    $date = strtotime($date);
-    $date = $date . "000";
 
-    $dataPointPM10[] =
-        array("x" => $date, "y" => floatval($data['pm10']),);
-endforeach;
 
-$dataPoints = array(
-    array("x" => 946665000000, "y" => 3289000),
-    array("x" => 978287400000, "y" => 3830000),
-    array("x" => 1009823400000, "y" => 2009000),
-    array("x" => 1041359400000, "y" => 2840000),
-    array("x" => 1072895400000, "y" => 2396000),
-    array("x" => 1104517800000, "y" => 1613000),
-    array("x" => 1136053800000, "y" => 1821000),
-    array("x" => 1167589800000, "y" => 2000000),
-    array("x" => 1199125800000, "y" => 1397000),
-    array("x" => 1230748200000, "y" => 2506000),
-    array("x" => 1262284200000, "y" => 6704000),
-    array("x" => 1293820200000, "y" => 5704000),
-    array("x" => 1325356200000, "y" => 4009000),
-    array("x" => 1356978600000, "y" => 3026000),
-    array("x" => 1388514600000, "y" => 2394000),
-    array("x" => 1420050600000, "y" => 1872000),
-    array("x" => 1451586600000, "y" => 2140000)
-);
 //var_dump($dataPoints);
 //echo "<br><br><br>";
 //var_dump($dataPointCo2);
@@ -175,21 +131,21 @@ $dataPoints = array(
             var pm25Chart = new CanvasJS.Chart("pm25-container", {
                 animationEnabled: true,
                 title:{
-                    text: "PM25 Chart"
+                    text: "PM2.5 Levels"
                 },
                 axisY: {
-                    title: "Revenue in USD",
-                    valueFormatString: "#0,,.",
-                    suffix: "mn",
-                    prefix: "$"
+                    title: "PM2.5 (ug/m3)",
+                },
+                axisX: {
+                    title: "Date",
+                    xValueFormatString: "DD MMM YY",
+
                 },
                 data: [{
-                    type: "spline",
-                    markerSize: 5,
-                    xValueFormatString: "YYYY",
-                    yValueFormatString: "$#,##0.##",
+                    type: "area",
                     xValueType: "dateTime",
-                    dataPoints: <?php echo json_encode($dataPoints, JSON_NUMERIC_CHECK); ?>
+                    xValueFormatString: "DD MMM",
+                    dataPoints: <?php echo json_encode($dataPointPM25, JSON_NUMERIC_CHECK); ?>
                 }]
             });
 

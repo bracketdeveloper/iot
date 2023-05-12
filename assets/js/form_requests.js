@@ -77,7 +77,7 @@ function validateLoginInForm() {
                 Swal.fire({
                     icon: 'success',
                     title: 'Welcome To',
-                    text: 'Smart Parking Pro',
+                    text: 'Dashboard',
                 }).then((result) => {
                     window.location.replace('index.php')
                 })
