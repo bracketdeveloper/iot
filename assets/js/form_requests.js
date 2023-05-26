@@ -760,6 +760,135 @@ function validateDeleteTab(tabId) {
     });
 }
 
+/* Delete Tab Form Script*/
+function getDailyMeanOfData(parameter) {
+    const meanHeadingEl = document.getElementById('mean-type-heading');
+    $('#mean-table tbody').empty();
+    meanHeadingEl.innerText = "Daily Means of Data";
+
+    var formData = new FormData();
+    formData.append('parameter', parameter);
+    $.ajax({
+        url: "admin/ajax_process.php?action=get_daily_mean_of_data",
+        type: 'POST',
+        contentType: false,
+        processData: false,
+        data: formData,
+    }).done(function (data) {
+
+        data = JSON.parse(data);
+        $('#mean-table tbody').empty();
+        for (i=0; i<data.length; i++){
+            var newRow = document.createElement("tr");
+            var serialNo = document.createElement("td");
+            var date = document.createElement("td");
+            var mean = document.createElement("td");
+
+            // Set the cell content
+            serialNo.textContent = i+1;
+            date.textContent = data[i]['date'];
+            mean.textContent = data[i]['daily_mean'];
+
+            // Append cells to the row
+            newRow.appendChild(serialNo);
+            newRow.appendChild(date);
+            newRow.appendChild(mean);
+
+            // Append the new row to the table body
+            $('#mean-table tbody').append(newRow);
+        }
+
+        /* login successful code is 1*/
+
+    });
+}
+
+function getWeeklyMeanOfData(parameter) {
+    const meanHeadingEl = document.getElementById('mean-type-heading');
+    $('#mean-table tbody').empty();
+    meanHeadingEl.innerText = "Weekly Means of Data";
+
+    var formData = new FormData();
+    formData.append('parameter', parameter);
+    $.ajax({
+        url: "admin/ajax_process.php?action=get_weekly_mean_of_data",
+        type: 'POST',
+        contentType: false,
+        processData: false,
+        data: formData,
+    }).done(function (data) {
+
+        data = JSON.parse(data);
+        $('#mean-table tbody').empty();
+        for (i=0; i<data.length; i++){
+            var newRow = document.createElement("tr");
+            var serialNo = document.createElement("td");
+            var date = document.createElement("td");
+            var mean = document.createElement("td");
+            var fromDate = data[i]['from_date'].substring(7);
+            var toDate = data[i]['to_date'].substring(7);
+
+            // Set the cell content
+            serialNo.textContent = i+1;
+            date.textContent = "From Date: " + data[i]['from_date'] + " To Date: " + data[i]['to_date'];
+            mean.textContent = data[i]['weekly_mean'];
+
+            // Append cells to the row
+            newRow.appendChild(serialNo);
+            newRow.appendChild(date);
+            newRow.appendChild(mean);
+
+            // Append the new row to the table body
+            $('#mean-table tbody').append(newRow);
+        }
+
+        /* login successful code is 1*/
+
+    });
+}
+
+function getYearlyMeanOfData(parameter) {
+    const meanHeadingEl = document.getElementById('mean-type-heading');
+    $('#mean-table tbody').empty();
+    meanHeadingEl.innerText = "Yearly Means of Data";
+
+    var formData = new FormData();
+    formData.append('parameter', parameter);
+    $.ajax({
+        url: "admin/ajax_process.php?action=get_yearly_mean_of_data",
+        type: 'POST',
+        contentType: false,
+        processData: false,
+        data: formData,
+    }).done(function (data) {
+
+        data = JSON.parse(data);
+        $('#mean-table tbody').empty();
+        for (i=0; i<data.length; i++){
+            var newRow = document.createElement("tr");
+            var serialNo = document.createElement("td");
+            var date = document.createElement("td");
+            var mean = document.createElement("td");
+
+            // Set the cell content
+            serialNo.textContent = i+1;
+            date.textContent = data[i]['year'];
+            mean.textContent = data[i]['yearly_mean'];
+
+            // Append cells to the row
+            newRow.appendChild(serialNo);
+            newRow.appendChild(date);
+            newRow.appendChild(mean);
+
+            // Append the new row to the table body
+            $('#mean-table tbody').append(newRow);
+        }
+
+        /* login successful code is 1*/
+
+    });
+}
+
 /* Edit Username Form Script*/
 function validateEditUsername() {
     $('body').off('click', '#btn-edit-username');

@@ -36,6 +36,18 @@
 
 <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 
+<script>
+    $.ajax({
+        url: "admin/ajax_process.php?action=add_real_data",
+        type: 'POST',
+        contentType: false,
+        processData: false,
+    }).done(function (data) {
+        console.log(data)
+        /* login successful code is 1*/
+    });
+</script>
+
 </body>
 
 </html>

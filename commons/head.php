@@ -6,6 +6,7 @@ require_once "admin/custom_functions.php";
 <html lang="en">
 
 <head>
+
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
@@ -41,6 +42,23 @@ require_once "admin/custom_functions.php";
     * Author: BootstrapMade.com
   * License: https://bootstrapmade.com/license/
     ======================================================== -->
+
+    <script>
+
+        setInterval(function() {
+            // Your JavaScript code to be executed every 15 minutes
+            $.ajax({
+                url: "admin/ajax_process.php?action=add_real_data",
+                type: 'POST',
+                contentType: false,
+                processData: false,
+            }).done(function (data) {
+                console.log(data)
+                /* login successful code is 1*/
+            });
+        }, 1000000); // 900000 milliseconds = 15 minutes
+
+    </script>
 </head>
 
 <body>

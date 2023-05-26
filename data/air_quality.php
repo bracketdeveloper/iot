@@ -1,18 +1,22 @@
 <?php
 $completeData = getAllAirQualityData($conn);
 
-
 $dataPointCo2 = array();
 $dataPointHumidity = array();
 $dataPointTemperature = array();
 $dataPointPM10 = array();
 $dataPointPM25 = array();
+$i = 0;
+$startDate = null;
+$endDate = null;
 
 foreach ($completeData as $data):
-    $date = substr($data['received_at'], 0, 10);
-    $date = strtotime($date);
-    $date = $date . "000";
-
+    $date1 = substr($data['received_at'], 0, 10);
+    $date1 = strtotime($date1);
+    $date = $date1 . "000";
+    if($i==0):$startDate = date("Y-m-d", $date1);endif;
+    $i++;
+    $endDate = date("Y-m-d", $date1);
     $dataPointCo2[] =
         array("x" => $date, "y" => floatval($data['co2']));
     $dataPointHumidity[] =
@@ -27,11 +31,6 @@ foreach ($completeData as $data):
 endforeach;
 
 
-
-//var_dump($dataPoints);
-//echo "<br><br><br>";
-//var_dump($dataPointCo2);
-//exit();
 ?>
     <script>
         window.onload = function () {

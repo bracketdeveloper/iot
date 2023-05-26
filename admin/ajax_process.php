@@ -270,6 +270,135 @@ if (isset($_GET['action']) && $_GET['action'] == "add_new_tab") {
     }
 }
 
+if (isset($_GET['action']) && $_GET['action'] == "add_real_data") {
+
+
+// API endpoint URL
+    $apiUrl = "https://api.thingspeak.com/channels/1931543/feeds.json?api_key=HK1H2XM3YIG60ZO0";
+
+// Initialize cURL session
+    $curl = curl_init();
+
+// Set the cURL options
+    curl_setopt($curl, CURLOPT_URL, $apiUrl);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+// Execute the cURL request
+    $response = curl_exec($curl);
+
+// Check for cURL errors
+    if (curl_errno($curl)) {
+        $error_message = curl_error($curl);
+        echo "Error: " . $error_message;
+    }
+
+// Close cURL session
+    curl_close($curl);
+
+// Process the response
+    if ($response) {
+        $apiData = json_decode($response, true);
+        // Do something with the data
+
+        $allAirData = getAllAirQualityData($conn);
+        $allAirData = end($allAirData);
+
+        $lastDbDateTime = $allAirData['received_at'];
+
+        $lastApiDateTime = $apiData['feeds'][99]['created_at'];
+
+        $lastDbDateTime = substr($lastDbDateTime, 0, 10) . substr($lastDbDateTime,11, 8);
+        $lastApiDateTime = substr($lastApiDateTime, 0, 10) . substr($lastApiDateTime,11, 8);
+
+        $lastDbDateTime = strtotime($lastDbDateTime);
+        $lastApiDateTime = strtotime($lastApiDateTime);
+        $i=0;
+        if($lastDbDateTime < $lastApiDateTime){
+            $dataForDb = array();
+            $lastDbDateTime = $allAirData['received_at'];
+            $lastDbDateTime = substr($lastDbDateTime, 0, 19);
+
+
+            for ($i = 0; $i < sizeof($apiData['feeds']); $i++):
+                $lastApiDateTime = substr($apiData['feeds'][$i]['created_at'], 0, 19);
+                if($lastDbDateTime == $lastApiDateTime){
+                    for ($j = ++$i; $j<sizeof($apiData['feeds']); $j++){
+                        $dateDbFormat = substr($apiData['feeds'][$i]['created_at'], 0, 19);
+                        $newRealDataQuery = "INSERT INTO `air_quality`(`received_at`, `co2`, `humidity`, `pm10`, `pm25`, 
+                                                `temperature`) VALUES  ('{$dateDbFormat}', 
+                                                  '{$apiData['feeds'][$j]['field1']}',
+                                                  '{$apiData['feeds'][$j]['field3']}',
+                                                  '{$apiData['feeds'][$j]['field4']}',
+                                                  '{$apiData['feeds'][$j]['field5']}',
+                                                  '{$apiData['feeds'][$j]['field6']}'
+                                                  )";
+
+                        $conn->query($newRealDataQuery) === TRUE;
+
+                    }
+                    break;
+                }
+            endfor;
+        }
+    } else {
+        echo "Error: No response from the API.";
+    }
+
+
+
+}
+
+if (isset($_GET['action']) && $_GET['action'] == "get_daily_mean_of_data") {
+    $parameter = mysqli_real_escape_string($conn, $_POST['parameter']);
+    $dailyMeanOfParameterQuery = "SELECT DATE_FORMAT(DATE(`received_at`), '%d-%m-%Y') AS date,ROUND(AVG(`$parameter`), 2) AS daily_mean
+                         FROM air_quality
+                         GROUP BY DATE(`received_at`);";
+    $dailyMeanOfParameterQueryResult = mysqli_query($conn, $dailyMeanOfParameterQuery);
+    $data = array();
+    if (mysqli_num_rows($dailyMeanOfParameterQueryResult) > 0) {
+        while ($row = $dailyMeanOfParameterQueryResult->fetch_assoc()) {
+            $data[] = $row;
+        }
+    }
+    echo json_encode($data);
+}
+
+if (isset($_GET['action']) && $_GET['action'] == "get_weekly_mean_of_data") {
+    $parameter = mysqli_real_escape_string($conn, $_POST['parameter']);
+    $weeklyMeanOfParameterQuery = "SELECT 
+       	 ROUND(AVG(`$parameter`), 2) AS weekly_mean,
+		DATE_FORMAT(MIN(`received_at`), '%d-%m-%Y') AS from_date,
+		DATE_FORMAT(MAX(`received_at`), '%d-%m-%Y') AS to_date
+  		FROM air_quality
+        GROUP BY WEEK(`received_at`)
+        ORDER BY WEEK(`received_at`);";
+    $weeklyMeanOfParameterQueryResult = mysqli_query($conn, $weeklyMeanOfParameterQuery);
+    $data = array();
+    if (mysqli_num_rows($weeklyMeanOfParameterQueryResult) > 0) {
+        while ($row = $weeklyMeanOfParameterQueryResult->fetch_assoc()) {
+            $data[] = $row;
+        }
+    }
+    echo json_encode($data);
+}
+
+if (isset($_GET['action']) && $_GET['action'] == "get_yearly_mean_of_data") {
+    $parameter = mysqli_real_escape_string($conn, $_POST['parameter']);
+    $yearlyMeanOfParameterQuery = "SELECT YEAR(`received_at`) AS year, 
+                                    ROUND(AVG(`$parameter`),2) AS yearly_mean
+                                    FROM air_quality
+                                    GROUP BY YEAR(`received_at`)
+                                    ORDER BY YEAR(`received_at`)";
+    $yearlyMeanOfParameterQueryResult = mysqli_query($conn, $yearlyMeanOfParameterQuery);
+    $data = array();
+    if (mysqli_num_rows($yearlyMeanOfParameterQueryResult) > 0) {
+        while ($row = $yearlyMeanOfParameterQueryResult->fetch_assoc()) {
+            $data[] = $row;
+        }
+    }
+    echo json_encode($data);
+}
+
 if (isset($_GET['action']) && $_GET['action'] == "add_new_data") {
     $playerId = mysqli_real_escape_string($conn, $_POST['player_id']);
     $height = mysqli_real_escape_string($conn, $_POST['height']);
